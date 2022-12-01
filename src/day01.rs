@@ -1,28 +1,29 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use itertools::Itertools;
+
+fn sum_calories_per_elf(data: &str) -> usize {
+    data.lines().filter_map(|it| it.parse::<usize>().ok()).sum()
+}
 
 #[aoc_generator(day01)]
-pub fn generate(inp: &str) -> Vec<Vec<usize>> {
-    inp.split("\n\n").fold(vec![], |mut acc, block| {
-        let calories_per_elf = block.lines().filter_map(|l| l.parse().ok()).collect();
+pub fn generate(inp: &str) -> Vec<usize> {
+    let mut result = inp.split("\n\n").fold(vec![], |mut acc, block: &str| {
+        let calories_per_elf = sum_calories_per_elf(block);
         acc.push(calories_per_elf);
         acc
-    })
+    });
+
+    result.sort_by(|a, b| b.cmp(a));
+    result
 }
 
 #[aoc(day01, part1)]
-pub fn part1(inp: &[Vec<usize>]) -> Option<usize> {
-    inp.iter().map(|it| it.iter().sum()).max()
+pub fn part1(inp: &[usize]) -> Option<usize> {
+    inp.iter().max().copied()
 }
 
 #[aoc(day01, part2)]
-pub fn part2(inp: &[Vec<usize>]) -> usize {
-    inp.iter()
-        .map(|it| it.iter().sum::<usize>())
-        .sorted()
-        .rev()
-        .take(3)
-        .sum()
+pub fn part2(inp: &[usize]) -> usize {
+    inp.iter().take(3).sum()
 }
 
 #[cfg(test)]
