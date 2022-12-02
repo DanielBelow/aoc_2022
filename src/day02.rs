@@ -1,76 +1,12 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use parse_display::{Display, FromStr};
 
-#[derive(PartialEq, Eq, Copy, Clone)]
-pub enum RockPaperScissor {
-    Rock,
-    Paper,
-    Scissor,
-}
+const ROCK: usize = 1;
+const PAPER: usize = 2;
+const SCISSORS: usize = 3;
 
-impl From<char> for RockPaperScissor {
-    fn from(value: char) -> Self {
-        match value {
-            'A' | 'X' => RockPaperScissor::Rock,
-            'B' | 'Y' => RockPaperScissor::Paper,
-            'C' | 'Z' => RockPaperScissor::Scissor,
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl RockPaperScissor {
-    const LOSS: usize = 0;
-    const DRAW: usize = 3;
-    const WIN: usize = 6;
-
-    fn value(self) -> usize {
-        match self {
-            RockPaperScissor::Rock => 1,
-            RockPaperScissor::Paper => 2,
-            RockPaperScissor::Scissor => 3,
-        }
-    }
-
-    fn fight(self, other: RockPaperScissor) -> usize {
-        match (self, other) {
-            (RockPaperScissor::Rock, RockPaperScissor::Rock)
-            | (RockPaperScissor::Paper, RockPaperScissor::Paper)
-            | (RockPaperScissor::Scissor, RockPaperScissor::Scissor) => Self::DRAW,
-            (RockPaperScissor::Rock, RockPaperScissor::Paper)
-            | (RockPaperScissor::Scissor, RockPaperScissor::Rock)
-            | (RockPaperScissor::Paper, RockPaperScissor::Scissor) => Self::LOSS,
-            (RockPaperScissor::Rock, RockPaperScissor::Scissor)
-            | (RockPaperScissor::Paper, RockPaperScissor::Rock)
-            | (RockPaperScissor::Scissor, RockPaperScissor::Paper) => Self::WIN,
-        }
-    }
-
-    fn score_against(self, other: RockPaperScissor) -> usize {
-        self.value() + self.fight(other)
-    }
-
-    fn choose(self, wdl: char) -> RockPaperScissor {
-        // X: Lose
-        // Y: Draw
-        // Z: Win
-        match (self, wdl) {
-            (RockPaperScissor::Rock, 'X')
-            | (RockPaperScissor::Paper, 'Z')
-            | (RockPaperScissor::Scissor, 'Y') => RockPaperScissor::Scissor,
-
-            (RockPaperScissor::Rock, 'Y')
-            | (RockPaperScissor::Paper, 'X')
-            | (RockPaperScissor::Scissor, 'Z') => RockPaperScissor::Rock,
-
-            (RockPaperScissor::Rock, 'Z')
-            | (RockPaperScissor::Paper, 'Y')
-            | (RockPaperScissor::Scissor, 'X') => RockPaperScissor::Paper,
-
-            _ => unreachable!(),
-        }
-    }
-}
+const WIN: usize = 6;
+const DRAW: usize = 3;
 
 #[derive(Display, FromStr, Copy, Clone)]
 #[display("{lhs} {rhs}")]
@@ -80,25 +16,53 @@ struct ParsedInput {
 }
 
 #[aoc_generator(day2)]
-pub fn generate(inp: &str) -> Vec<(RockPaperScissor, char)> {
+pub fn generate(inp: &str) -> Vec<(char, char)> {
     inp.lines()
         .filter_map(|it| it.parse::<ParsedInput>().ok())
-        .map(|it| (RockPaperScissor::from(it.lhs), it.rhs))
+        .map(|ParsedInput { lhs, rhs }| (lhs, rhs))
         .collect()
 }
 
 #[aoc(day2, part1)]
-pub fn part1(inp: &[(RockPaperScissor, char)]) -> usize {
+pub fn part1(inp: &[(char, char)]) -> usize {
     inp.iter()
-        .map(|(lhs, rhs)| (lhs, RockPaperScissor::from(*rhs)))
-        .fold(0, |acc, (lhs, rhs)| acc + rhs.score_against(*lhs))
+        .map(|(lhs, rhs)| match (lhs, rhs) {
+            ('A', 'X') => ROCK + DRAW,
+            ('A', 'Y') => PAPER + WIN,
+            ('A', 'Z') => SCISSORS,
+
+            ('B', 'X') => ROCK,
+            ('B', 'Y') => PAPER + DRAW,
+            ('B', 'Z') => SCISSORS + WIN,
+
+            ('C', 'X') => ROCK + WIN,
+            ('C', 'Y') => PAPER,
+            ('C', 'Z') => SCISSORS + DRAW,
+
+            _ => unreachable!("Unknown pattern"),
+        })
+        .sum()
 }
 
 #[aoc(day2, part2)]
-pub fn part2(inp: &[(RockPaperScissor, char)]) -> usize {
+pub fn part2(inp: &[(char, char)]) -> usize {
     inp.iter()
-        .map(|(lhs, rhs)| (lhs, lhs.choose(*rhs)))
-        .fold(0, |acc, (lhs, rhs)| acc + rhs.score_against(*lhs))
+        .map(|(lhs, rhs)| match (lhs, rhs) {
+            ('A', 'X') => SCISSORS,
+            ('A', 'Y') => ROCK + DRAW,
+            ('A', 'Z') => PAPER + WIN,
+
+            ('B', 'X') => ROCK,
+            ('B', 'Y') => PAPER + DRAW,
+            ('B', 'Z') => SCISSORS + WIN,
+
+            ('C', 'X') => PAPER,
+            ('C', 'Y') => SCISSORS + DRAW,
+            ('C', 'Z') => ROCK + WIN,
+
+            _ => unreachable!("Unknown pattern"),
+        })
+        .sum()
 }
 
 #[cfg(test)]
