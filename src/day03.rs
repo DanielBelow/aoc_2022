@@ -32,8 +32,8 @@ pub fn part1(inp: &[String]) -> usize {
 
 #[aoc(day3, part2)]
 pub fn part2(inp: &[String]) -> usize {
-    inp.chunks_exact(3).fold(0, |acc, it| {
-        if let [l1, l2, l3] = it {
+    inp.chunks_exact(3).fold(0, |acc, it| match it {
+        [l1, l2, l3] => {
             let s1 = l1.chars().collect::<HashSet<_>>();
             let s2 = l2.chars().collect::<HashSet<_>>();
             let s3 = l3.chars().collect::<HashSet<_>>();
@@ -47,9 +47,8 @@ pub fn part2(inp: &[String]) -> usize {
                 .collect_vec();
 
             acc + sum_common_chars(&shared_in_group)
-        } else {
-            acc
         }
+        _ => unreachable!(),
     })
 }
 
