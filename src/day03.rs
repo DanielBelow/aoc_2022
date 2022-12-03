@@ -57,11 +57,11 @@ mod tests {
     use super::*;
 
     const TEST_DATA: &str = "vJrwpWtwJgWrhcsFMMfFFhFp\n\
-jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\n\
-PmmdzqPrVvPwwTWBwg\n\
-wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\n\
-ttgJtRGJQctTZtZT\n\
-CrZsJsPPZsGzwwsLwLmpwMDw";
+                             jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\n\
+                             PmmdzqPrVvPwwTWBwg\n\
+                             wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\n\
+                             ttgJtRGJQctTZtZT\n\
+                             CrZsJsPPZsGzwwsLwLmpwMDw";
 
     #[test]
     fn test_sample_p1() {
