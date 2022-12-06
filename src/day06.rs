@@ -1,24 +1,48 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use itertools::Itertools;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
 #[aoc_generator(day6)]
 pub fn generate(inp: &str) -> Vec<char> {
     inp.chars().collect()
 }
 
-fn find_unique_window(data: &[char], size: usize) -> Option<usize> {
-    data.windows(size)
-        .find_position(|it| it.iter().all_unique())
-        .map(|(idx, _)| idx + size)
+fn find_unique_window(data: &[char], size: usize) -> usize {
+    // Keep track of chars and their first occurrence
+    let mut seen = HashMap::new();
+
+    let mut idx = 0;
+    'outer: loop {
+        // Clear previous iteration
+        seen.clear();
+
+        for (collision_idx, c) in data[idx..idx + size].iter().enumerate() {
+            match seen.entry(c) {
+                // If we have seen this char already, move our idx until 1 after the first occurrence
+                // e.g. for "abcc" we don't have to check index 1, since the first collision
+                // was at indices 2 and 3
+                Entry::Occupied(e) => {
+                    idx += *e.get() + 1;
+                    continue 'outer;
+                }
+                // Insert & keep iterating
+                Entry::Vacant(n) => {
+                    n.insert(collision_idx);
+                }
+            }
+        }
+
+        return idx + size;
+    }
 }
 
 #[aoc(day6, part1)]
-pub fn part1(inp: &[char]) -> Option<usize> {
+pub fn part1(inp: &[char]) -> usize {
     find_unique_window(inp, 4)
 }
 
 #[aoc(day6, part2)]
-pub fn part2(inp: &[char]) -> Option<usize> {
+pub fn part2(inp: &[char]) -> usize {
     find_unique_window(inp, 14)
 }
 
@@ -38,7 +62,7 @@ mod tests {
         for (s, expected) in inp {
             let data = generate(s);
             let res = part1(&data);
-            assert_eq!(res, Some(expected));
+            assert_eq!(res, expected);
         }
     }
 
@@ -55,7 +79,7 @@ mod tests {
         for (s, expected) in inp {
             let data = generate(s);
             let res = part2(&data);
-            assert_eq!(res, Some(expected));
+            assert_eq!(res, expected);
         }
     }
 }
