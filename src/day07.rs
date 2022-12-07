@@ -5,9 +5,6 @@ use std::collections::HashMap;
 
 #[derive(Display, FromStr, Clone, Debug)]
 pub enum ChangeDir {
-    #[display("/")]
-    Top,
-
     #[display("..")]
     Up,
 
@@ -19,12 +16,6 @@ pub enum ChangeDir {
 pub enum Command {
     #[display("$ cd {0}")]
     CD(ChangeDir),
-
-    #[display("$ ls")]
-    LS,
-
-    #[display("dir {0}")]
-    DirEntry(String),
 
     #[display("{0} {1}")]
     Entry(usize, String),
@@ -39,24 +30,16 @@ fn collect_command_output(cmds: &[Command]) -> HashMap<String, usize> {
     let mut directory_stack = vec![];
 
     let mut result = HashMap::new();
+    result.insert("/".to_string(), 0);
 
     for cmd in cmds {
         match cmd {
-            Command::CD(change_dir) => {
-                match change_dir {
-                    ChangeDir::Top => {
-                        directory_stack.clear();
-                        directory_stack.push("/".to_string());
-                    }
-                    ChangeDir::Up => {
-                        directory_stack.pop();
-                    }
-                    ChangeDir::Subdir(dir_name) => {
-                        directory_stack.push(dir_name.clone());
-                    }
-                };
+            Command::CD(ChangeDir::Up) => {
+                directory_stack.pop();
             }
-            Command::LS | Command::DirEntry(_) => {}
+            Command::CD(ChangeDir::Subdir(dir_name)) => {
+                directory_stack.push(dir_name.clone());
+            }
             Command::Entry(size, _) => {
                 // Just add the size to all parent directories as well
                 for idx in 0..directory_stack.len() {
@@ -86,7 +69,7 @@ pub fn part2(cmds: &[Command]) -> Option<usize> {
 
     let dirs = collect_command_output(cmds);
 
-    let cur_size = *dirs.get("/").unwrap();
+    let cur_size = *dirs.get("/")?;
     let current_unused = TOTAL_SIZE - cur_size;
     let needed_cleanup = EMPTY_NEEDED - current_unused;
 
