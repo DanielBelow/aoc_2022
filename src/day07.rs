@@ -1,5 +1,4 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use itertools::Itertools;
 use parse_display::{Display, FromStr};
 use std::collections::HashMap;
 
@@ -27,7 +26,7 @@ pub fn generate(inp: &str) -> Vec<Command> {
 }
 
 fn collect_command_output(cmds: &[Command]) -> HashMap<String, usize> {
-    let mut directory_stack = vec![];
+    let mut directory_stack: Vec<&str> = vec![];
 
     let mut result = HashMap::new();
     result.insert("/".to_string(), 0);
@@ -38,16 +37,13 @@ fn collect_command_output(cmds: &[Command]) -> HashMap<String, usize> {
                 directory_stack.pop();
             }
             Command::CD(ChangeDir::Subdir(dir_name)) => {
-                directory_stack.push(dir_name.clone());
+                directory_stack.push(dir_name);
             }
             Command::Entry(size, _) => {
                 // Just add the size to all parent directories as well
                 for idx in 0..directory_stack.len() {
-                    let cur_dir_name = &directory_stack[..=idx].join("/");
-                    result
-                        .entry(cur_dir_name.clone())
-                        .and_modify(|it| *it += size)
-                        .or_insert_with(|| *size);
+                    let cur_dir_name = directory_stack[..=idx].join("/");
+                    *result.entry(cur_dir_name).or_insert(0) += size;
                 }
             }
         };
@@ -70,15 +66,12 @@ pub fn part2(cmds: &[Command]) -> Option<usize> {
     let dirs = collect_command_output(cmds);
 
     let cur_size = *dirs.get("/")?;
-    let current_unused = TOTAL_SIZE - cur_size;
-    let needed_cleanup = EMPTY_NEEDED - current_unused;
+    let needed_cleanup = EMPTY_NEEDED - (TOTAL_SIZE - cur_size);
 
-    let candidates = dirs
-        .iter()
-        .filter(|(_, v)| **v >= needed_cleanup)
-        .collect_vec();
-
-    candidates.iter().map(|(_, v)| **v).min()
+    dirs.values()
+        .filter(|it| **it >= needed_cleanup)
+        .min()
+        .copied()
 }
 
 #[cfg(test)]
