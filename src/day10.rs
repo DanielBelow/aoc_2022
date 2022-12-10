@@ -75,7 +75,7 @@ struct VirtualMachine {
     instructions: Vec<Instruction>,
     register: i64,
     cycle: i64,
-    signal_strengths: Vec<i64>,
+    signal_strength: i64,
     graphics: CRTScreen,
 }
 
@@ -85,7 +85,7 @@ impl VirtualMachine {
             instructions: insts.to_vec(),
             register: 1,
             cycle: 0,
-            signal_strengths: Vec::new(),
+            signal_strength: 0,
             graphics: CRTScreen::new(),
         }
     }
@@ -95,7 +95,7 @@ impl VirtualMachine {
     }
 
     fn total_signal_strength(&self) -> i64 {
-        self.signal_strengths.iter().sum()
+        self.signal_strength
     }
 
     fn execute(&mut self) {
@@ -103,7 +103,7 @@ impl VirtualMachine {
             self.cycle += 1;
 
             if self.collect_signal_strength() {
-                self.signal_strengths.push(self.register * self.cycle);
+                self.signal_strength += self.register * self.cycle;
             }
 
             self.graphics.draw(self.register, self.cycle);
