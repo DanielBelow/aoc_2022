@@ -1,7 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use parse_display::{Display, FromStr};
 
-#[derive(Display, FromStr, PartialEq, Eq, Copy, Clone, Debug)]
+#[derive(Display, FromStr, Copy, Clone)]
 pub enum Instruction {
     #[display("noop")]
     Noop,
@@ -21,7 +21,6 @@ pub fn generate(inp: &str) -> Vec<Instruction> {
         .collect()
 }
 
-#[derive(Clone)]
 struct CRTScreen {
     pixels: [[char; 40]; 6],
     row: usize,
@@ -70,7 +69,6 @@ impl CRTScreen {
     }
 }
 
-#[derive(Clone)]
 struct VirtualMachine {
     instructions: Vec<Instruction>,
     register: i64,
