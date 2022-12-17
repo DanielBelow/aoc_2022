@@ -184,7 +184,6 @@ pub fn part1(jets: &[char]) -> usize {
     state.grid.len()
 }
 
-#[allow(clippy::too_many_lines)]
 #[aoc(day17, part2)]
 pub fn part2(jets: &[char]) -> Option<usize> {
     let mut state = GameState::new(jets, get_rock_patterns());
