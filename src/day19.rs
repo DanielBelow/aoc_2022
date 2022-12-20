@@ -180,6 +180,7 @@ mod tests {
                               Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.";
 
     #[test]
+    #[ignore]
     fn test_sample_p1() {
         let data = generate(TEST_INPUT);
         let res = part1(&data);
