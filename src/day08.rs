@@ -1,130 +1,60 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use itertools::FoldWhile::{Continue, Done};
-use itertools::{iproduct, Itertools};
+use itertools::Itertools;
+use pathfinding::prelude::Matrix;
+
+const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
 #[aoc_generator(day8)]
-pub fn generate(inp: &str) -> Vec<Vec<u32>> {
-    let mut result = vec![];
-    for line in inp.lines() {
-        let row = line.chars().fold(vec![], |mut acc, it| {
-            acc.push(it.to_digit(10).unwrap());
-            acc
-        });
+pub fn generate(inp: &str) -> Option<Matrix<u32>> {
+    let rows = inp
+        .lines()
+        .map(|it| it.chars().filter_map(|it| it.to_digit(10)).collect_vec())
+        .collect_vec();
 
-        result.push(row);
-    }
-
-    result
+    Matrix::from_rows(rows).ok()
 }
 
-fn is_tree_visible(y: usize, x: usize, inp: &[Vec<u32>]) -> bool {
+fn is_tree_visible((y, x): (usize, usize), inp: &Matrix<u32>) -> bool {
     // edges always visible
-    if y == 0 || x == 0 || y == inp.len() || x == inp[0].len() {
+    if y == 0 || x == 0 || y == inp.rows || x == inp.columns {
         return true;
     }
 
-    let current = inp[y][x];
-
-    let mut result = 0;
-
-    // up
-    let before_y = &inp[..y];
-    result += usize::from(before_y.iter().all(|it| it[x] < current));
-
-    // down
-    let after_y = &inp[y + 1..];
-    result += usize::from(after_y.iter().all(|it| it[x] < current));
-
-    // left
-    let before_x = &inp[y][..x];
-    result += usize::from(before_x.iter().all(|it| *it < current));
-
-    // right
-    let after_x = &inp[y][x + 1..];
-    result += usize::from(after_x.iter().all(|it| *it < current));
-
-    result > 0
+    let current = inp[(y, x)];
+    DIRECTIONS.iter().fold(0, |acc, it| {
+        acc + usize::from(inp.in_direction((y, x), *it).all(|p| inp[p] < current))
+    }) > 0
 }
 
-fn scenic_score(y: usize, x: usize, inp: &[Vec<u32>]) -> usize {
-    let current = inp[y][x];
+fn scenic_score(pos: (usize, usize), inp: &Matrix<u32>) -> usize {
+    let current = inp[pos];
 
-    let mut scores = vec![];
-
-    // up
-    let before_y = &inp[..y];
-    let up = before_y
+    DIRECTIONS
         .iter()
-        .rev()
-        .fold_while(0, |acc, it| {
-            if it[x] < current {
-                Continue(acc + 1)
-            } else {
-                Done(acc + 1)
-            }
+        .map(|it| {
+            inp.in_direction(pos, *it)
+                .fold_while(0, |inner, p| {
+                    if inp[p] < current {
+                        Continue(inner + 1)
+                    } else {
+                        Done(inner + 1)
+                    }
+                })
+                .into_inner()
         })
-        .into_inner();
-
-    scores.push(up);
-
-    // down
-    let after_y = &inp[y + 1..];
-    let down = after_y
-        .iter()
-        .fold_while(0, |acc, it| {
-            if it[x] < current {
-                Continue(acc + 1)
-            } else {
-                Done(acc + 1)
-            }
-        })
-        .into_inner();
-    scores.push(down);
-
-    // left
-    let before_x = &inp[y][..x];
-    let left = before_x
-        .iter()
-        .rev()
-        .fold_while(0, |acc, it| {
-            if *it < current {
-                Continue(acc + 1)
-            } else {
-                Done(acc + 1)
-            }
-        })
-        .into_inner();
-    scores.push(left);
-
-    // right
-    let after_x = &inp[y][x + 1..];
-    let right = after_x
-        .iter()
-        .fold_while(0, |acc, it| {
-            if *it < current {
-                Continue(acc + 1)
-            } else {
-                Done(acc + 1)
-            }
-        })
-        .into_inner();
-    scores.push(right);
-
-    scores.iter().product()
+        .product()
 }
 
 #[aoc(day8, part1)]
-pub fn part1(inp: &[Vec<u32>]) -> usize {
-    iproduct!(0..inp.len(), 0..inp[0].len()).fold(0, |acc, (row, col)| {
-        acc + usize::from(is_tree_visible(row, col, inp))
-    })
+pub fn part1(inp: &Matrix<u32>) -> usize {
+    inp.indices()
+        .fold(0, |acc, it| acc + usize::from(is_tree_visible(it, inp)))
 }
 
 #[aoc(day8, part2)]
-pub fn part2(inp: &[Vec<u32>]) -> Option<usize> {
-    iproduct!(0..inp.len(), 0..inp[0].len())
-        .map(|(row, col)| scenic_score(row, col, inp))
-        .max()
+pub fn part2(inp: &Matrix<u32>) -> Option<usize> {
+    inp.indices().map(|it| scenic_score(it, inp)).max()
 }
 
 #[cfg(test)]
@@ -139,21 +69,21 @@ mod tests {
 
     #[test]
     fn test_sample_p1() {
-        let data = generate(TEST_INPUT);
+        let data = generate(TEST_INPUT).unwrap();
         let res = part1(&data);
         assert_eq!(res, 21);
     }
 
     #[test]
     fn test_score() {
-        let data = generate(TEST_INPUT);
-        let score = scenic_score(1, 2, &data);
+        let data = generate(TEST_INPUT).unwrap();
+        let score = scenic_score((1, 2), &data);
         assert_eq!(score, 4);
     }
 
     #[test]
     fn test_sample_p2() {
-        let data = generate(TEST_INPUT);
+        let data = generate(TEST_INPUT).unwrap();
         let res = part2(&data);
         assert_eq!(res, Some(8));
     }

@@ -1,5 +1,6 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use itertools::iproduct;
+use itertools::{iproduct, Itertools};
+use pathfinding::prelude::Matrix;
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum Direction {
@@ -29,42 +30,39 @@ fn to_tile(c: char) -> Tile {
 }
 
 #[aoc_generator(day24)]
-pub fn generate(inp: &str) -> Vec<Vec<Tile>> {
-    inp.lines().fold(vec![], |mut acc, line| {
-        let row = line.chars().fold(vec![], |mut acc, it| {
-            acc.push(to_tile(it));
-            acc
-        });
+pub fn generate(inp: &str) -> Option<Matrix<Tile>> {
+    let rows = inp
+        .lines()
+        .map(|line| line.chars().map(to_tile).collect_vec())
+        .collect_vec();
 
-        acc.push(row);
-        acc
-    })
+    Matrix::from_rows(rows).ok()
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 struct State {
     x: usize,
     y: usize,
-    grid: Vec<Vec<Tile>>,
+    grid: Matrix<Tile>,
 }
 
-fn add_blizzard(x: usize, y: usize, direction: Direction, grid: &mut [Vec<Tile>]) {
-    if let Tile::Blizzard(ref mut dirs) = grid[y][x] {
+fn add_blizzard(x: usize, y: usize, direction: Direction, grid: &mut Matrix<Tile>) {
+    if let Tile::Blizzard(ref mut dirs) = grid[(y, x)] {
         dirs.push(direction);
     } else {
-        grid[y][x] = Tile::Blizzard(vec![direction]);
+        grid[(y, x)] = Tile::Blizzard(vec![direction]);
     }
 }
 
 fn successors(state: &State) -> Vec<(State, usize)> {
-    let height = state.grid.len();
-    let width = state.grid[0].len();
+    let height = state.grid.rows;
+    let width = state.grid.columns;
 
-    let mut new_grid = vec![vec![Tile::Clear; width]; height];
+    let mut new_grid = Matrix::new(height, width, Tile::Clear);
 
     // Update grid
     for (y, x) in iproduct!(0..height, 0..width) {
-        match &state.grid[y][x] {
+        match &state.grid[(y, x)] {
             Tile::Clear => {}
             Tile::Blizzard(dirs) => {
                 for dir in dirs {
@@ -88,61 +86,26 @@ fn successors(state: &State) -> Vec<(State, usize)> {
                     }
                 }
             }
-            Tile::Wall => new_grid[y][x] = Tile::Wall,
+            Tile::Wall => new_grid[(y, x)] = Tile::Wall,
         };
     }
 
     let mut result = vec![];
 
-    // Down
-    if state.y < height - 1 && new_grid[state.y + 1][state.x] == Tile::Clear {
-        result.push((
-            State {
-                x: state.x,
-                y: state.y + 1,
-                grid: new_grid.clone(),
-            },
-            1,
-        ));
+    for (ny, nx) in new_grid.neighbours((state.y, state.x), false) {
+        if new_grid[(ny, nx)] == Tile::Clear {
+            result.push((
+                State {
+                    x: nx,
+                    y: ny,
+                    grid: new_grid.clone(),
+                },
+                1,
+            ));
+        }
     }
 
-    // Right
-    if state.x < width - 1 && new_grid[state.y][state.x + 1] == Tile::Clear {
-        result.push((
-            State {
-                x: state.x + 1,
-                y: state.y,
-                grid: new_grid.clone(),
-            },
-            1,
-        ));
-    }
-
-    // Up
-    if state.y > 0 && new_grid[state.y - 1][state.x] == Tile::Clear {
-        result.push((
-            State {
-                x: state.x,
-                y: state.y - 1,
-                grid: new_grid.clone(),
-            },
-            1,
-        ));
-    }
-
-    // Left
-    if state.x > 0 && new_grid[state.y][state.x - 1] == Tile::Clear {
-        result.push((
-            State {
-                x: state.x - 1,
-                y: state.y,
-                grid: new_grid.clone(),
-            },
-            1,
-        ));
-    }
-
-    if new_grid[state.y][state.x] == Tile::Clear {
+    if new_grid[(state.y, state.x)] == Tile::Clear {
         result.push((
             State {
                 x: state.x,
@@ -160,11 +123,11 @@ fn heuristic(state: &State, gx: usize, gy: usize) -> usize {
     state.x.abs_diff(gx) + state.y.abs_diff(gy)
 }
 
-fn find_path_to(gx: usize, gy: usize, grid: &[Vec<Tile>]) -> Option<usize> {
+fn find_path_to(gx: usize, gy: usize, grid: &Matrix<Tile>) -> Option<usize> {
     let start_state = State {
         x: 1,
         y: 0,
-        grid: grid.to_vec(),
+        grid: grid.clone(),
     };
 
     let (path, _) = pathfinding::prelude::astar(
@@ -177,11 +140,11 @@ fn find_path_to(gx: usize, gy: usize, grid: &[Vec<Tile>]) -> Option<usize> {
     Some(path.len() - 1)
 }
 
-fn find_roundtrips_to(gx: usize, gy: usize, grid: &[Vec<Tile>]) -> Option<usize> {
+fn find_roundtrips_to(gx: usize, gy: usize, grid: &Matrix<Tile>) -> Option<usize> {
     let start_state = State {
         x: 1,
         y: 0,
-        grid: grid.to_vec(),
+        grid: grid.clone(),
     };
 
     let mut cur_time = 0;
@@ -219,12 +182,12 @@ fn find_roundtrips_to(gx: usize, gy: usize, grid: &[Vec<Tile>]) -> Option<usize>
 }
 
 #[aoc(day24, part1)]
-pub fn part1(grid: &[Vec<Tile>]) -> Option<usize> {
+pub fn part1(grid: &Matrix<Tile>) -> Option<usize> {
     find_path_to(100, 36, grid)
 }
 
 #[aoc(day24, part2)]
-pub fn part2(grid: &[Vec<Tile>]) -> Option<usize> {
+pub fn part2(grid: &Matrix<Tile>) -> Option<usize> {
     find_roundtrips_to(100, 36, grid)
 }
 
@@ -242,14 +205,14 @@ mod tests {
     #[test]
     fn test_sample_p1() {
         let data = generate(TEST_DATA);
-        let res = find_path_to(6, 5, &data);
+        let res = find_path_to(6, 5, &data.unwrap());
         assert_eq!(res, Some(18));
     }
 
     #[test]
     fn test_sample_p2() {
         let data = generate(TEST_DATA);
-        let res = find_roundtrips_to(6, 5, &data);
+        let res = find_roundtrips_to(6, 5, &data.unwrap());
         assert_eq!(res, Some(54));
     }
 }
