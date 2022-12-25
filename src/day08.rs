@@ -48,13 +48,13 @@ fn scenic_score(pos: (usize, usize), inp: &Matrix<u32>) -> usize {
 
 #[aoc(day8, part1)]
 pub fn part1(inp: &Matrix<u32>) -> usize {
-    inp.indices()
+    inp.keys()
         .fold(0, |acc, it| acc + usize::from(is_tree_visible(it, inp)))
 }
 
 #[aoc(day8, part2)]
 pub fn part2(inp: &Matrix<u32>) -> Option<usize> {
-    inp.indices().map(|it| scenic_score(it, inp)).max()
+    inp.keys().map(|it| scenic_score(it, inp)).max()
 }
 
 #[cfg(test)]

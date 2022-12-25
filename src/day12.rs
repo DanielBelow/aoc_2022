@@ -44,13 +44,13 @@ fn find_shortest_path_from(start: (usize, usize), grid: &Matrix<char>) -> Option
 
 #[aoc(day12, part1)]
 pub fn part1(inp: &Matrix<char>) -> Option<usize> {
-    let start_pos = inp.indices().find(|it| inp[*it] == 'S')?;
+    let start_pos = inp.keys().find(|it| inp[*it] == 'S')?;
     find_shortest_path_from(start_pos, inp)
 }
 
 #[aoc(day12, part2)]
 pub fn part2(inp: &Matrix<char>) -> Option<usize> {
-    inp.indices()
+    inp.keys()
         .filter_map(|it| {
             if inp[it] == 'a' || inp[it] == 'S' {
                 find_shortest_path_from(it, inp)
