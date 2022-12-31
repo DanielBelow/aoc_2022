@@ -16,7 +16,7 @@ pub struct Sensor {
 }
 
 #[allow(clippy::cast_possible_wrap)]
-fn manhattan_distance((lx, ly): (isize, isize), (rx, ry): (isize, isize)) -> isize {
+const fn manhattan_distance((lx, ly): (isize, isize), (rx, ry): (isize, isize)) -> isize {
     let dist = lx.abs_diff(rx) + ly.abs_diff(ry);
     dist as isize
 }
@@ -128,13 +128,13 @@ mod tests {
     fn test_sample_p1() {
         let data = generate(TEST_INPUT);
         let res = count_in_row(10, &data);
-        assert_eq!(res.unwrap(), 26);
+        assert_eq!(res, Some(26));
     }
 
     #[test]
     fn test_sample_p2() {
         let data = generate(TEST_INPUT);
         let res = find_beacon(20, &data);
-        assert_eq!(res.unwrap(), 56_000_011);
+        assert_eq!(res, Some(56_000_011));
     }
 }

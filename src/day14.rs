@@ -28,19 +28,17 @@ pub fn generate(inp: &str) -> Vec<Chain> {
     })
 }
 
-fn make_grid(chains: &[Chain], with_floor: bool) -> Vec<Vec<char>> {
+fn make_grid(chains: &[Chain], with_floor: bool) -> Option<Vec<Vec<char>>> {
     let max_x = chains
         .iter()
         .flat_map(|it| it.pairs.clone())
-        .max_by_key(|it| it.x)
-        .unwrap()
+        .max_by_key(|it| it.x)?
         .x;
 
     let max_y = chains
         .iter()
         .flat_map(|it| it.pairs.clone())
-        .max_by_key(|it| it.y)
-        .unwrap()
+        .max_by_key(|it| it.y)?
         .y;
 
     let mut grid = vec![vec!['.'; max_x + 1]; max_y + 1];
@@ -78,7 +76,7 @@ fn make_grid(chains: &[Chain], with_floor: bool) -> Vec<Vec<char>> {
         }
     }
 
-    grid
+    Some(grid)
 }
 
 enum PositionState {
@@ -137,9 +135,9 @@ fn try_move(sand: Pair, grid: &[Vec<char>], with_floor: bool) -> PositionState {
 }
 
 #[aoc(day14, part1)]
-pub fn part1(chains: &[Chain]) -> usize {
+pub fn part1(chains: &[Chain]) -> Option<usize> {
     let sand_source = Pair { x: 500, y: 0 };
-    let mut grid = make_grid(chains, false);
+    let mut grid = make_grid(chains, false)?;
 
     loop {
         let mut new_sand = sand_source;
@@ -155,7 +153,7 @@ pub fn part1(chains: &[Chain]) -> usize {
                     new_sand = new_pos;
                 }
                 PositionState::FellOff => {
-                    return grid.iter().flatten().filter(|it| **it == 'O').count();
+                    return Some(grid.iter().flatten().filter(|it| **it == 'O').count());
                 }
                 PositionState::GrowLeft | PositionState::GrowRight => {
                     unreachable!("Not available in part1!")
@@ -166,15 +164,15 @@ pub fn part1(chains: &[Chain]) -> usize {
 }
 
 #[aoc(day14, part2)]
-pub fn part2(chains: &[Chain]) -> usize {
+pub fn part2(chains: &[Chain]) -> Option<usize> {
     let mut sand_source = Pair { x: 500, y: 0 };
-    let mut grid = make_grid(chains, true);
+    let mut grid = make_grid(chains, true)?;
 
     loop {
         let mut new_sand = sand_source;
 
         if grid[sand_source.y][sand_source.x] == 'O' {
-            return grid.iter().flatten().filter(|it| **it == 'O').count();
+            return Some(grid.iter().flatten().filter(|it| **it == 'O').count());
         }
 
         loop {
@@ -220,13 +218,13 @@ mod tests {
     fn test_sample_p1() {
         let data = generate(TEST_INPUT);
         let res = part1(&data);
-        assert_eq!(res, 24);
+        assert_eq!(res, Some(24));
     }
 
     #[test]
     fn test_sample_p2() {
         let data = generate(TEST_INPUT);
         let res = part2(&data);
-        assert_eq!(res, 93);
+        assert_eq!(res, Some(93));
     }
 }

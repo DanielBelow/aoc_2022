@@ -16,16 +16,16 @@ pub enum Direction {
 impl Direction {
     fn evaluate(self, knots: &mut [Pos]) {
         match self {
-            Direction::Up => {
+            Self::Up => {
                 knots[0].row -= 1;
             }
-            Direction::Down => {
+            Self::Down => {
                 knots[0].row += 1;
             }
-            Direction::Left => {
+            Self::Left => {
                 knots[0].col -= 1;
             }
-            Direction::Right => {
+            Self::Right => {
                 knots[0].col += 1;
             }
         }
@@ -59,7 +59,7 @@ struct Pos {
 }
 
 impl Pos {
-    fn is_neighbour_of(self, other: Pos) -> bool {
+    const fn is_neighbour_of(self, other: Self) -> bool {
         let dx = self.col.abs_diff(other.col);
         let dy = self.row.abs_diff(other.row);
 

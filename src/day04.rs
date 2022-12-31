@@ -9,11 +9,11 @@ pub struct Range {
 }
 
 impl Range {
-    fn fully_contains(&self, other: &Self) -> bool {
+    const fn fully_contains(&self, other: &Self) -> bool {
         other.lo >= self.lo && other.hi <= self.hi
     }
 
-    fn overlaps(&self, other: &Self) -> bool {
+    const fn overlaps(&self, other: &Self) -> bool {
         self.lo <= other.hi && self.hi >= other.lo
     }
 }

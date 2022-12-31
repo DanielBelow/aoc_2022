@@ -12,38 +12,38 @@ pub struct Cube {
 }
 
 impl Cube {
-    fn distance_to(&self, other: &Cube) -> usize {
+    const fn distance_to(&self, other: &Self) -> usize {
         self.x.abs_diff(other.x) + self.y.abs_diff(other.y) + self.z.abs_diff(other.z)
     }
 
-    fn adjacent_sides(&self) -> Vec<Cube> {
+    fn adjacent_sides(&self) -> Vec<Self> {
         vec![
-            Cube {
+            Self {
                 x: self.x + 1,
                 y: self.y,
                 z: self.z,
             },
-            Cube {
+            Self {
                 x: self.x - 1,
                 y: self.y,
                 z: self.z,
             },
-            Cube {
+            Self {
                 x: self.x,
                 y: self.y + 1,
                 z: self.z,
             },
-            Cube {
+            Self {
                 x: self.x,
                 y: self.y - 1,
                 z: self.z,
             },
-            Cube {
+            Self {
                 x: self.x,
                 y: self.y,
                 z: self.z + 1,
             },
-            Cube {
+            Self {
                 x: self.x,
                 y: self.y,
                 z: self.z - 1,

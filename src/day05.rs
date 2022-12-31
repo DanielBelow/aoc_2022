@@ -43,8 +43,9 @@ pub fn part1(inp: &ParsedData) -> String {
 
     for &Operation { num, from, to } in &inp.operations {
         for _ in 0..num {
-            let elem = cur_state[from - 1].pop().unwrap();
-            cur_state[to - 1].push(elem);
+            if let Some(elem) = cur_state[from - 1].pop() {
+                cur_state[to - 1].push(elem);
+            }
         }
     }
 
@@ -58,8 +59,9 @@ pub fn part2(inp: &ParsedData) -> String {
     for &Operation { num, from, to } in &inp.operations {
         let mut to_move = vec![];
         for _ in 0..num {
-            let elem = cur_state[from - 1].pop().unwrap();
-            to_move.push(elem);
+            if let Some(elem) = cur_state[from - 1].pop() {
+                to_move.push(elem);
+            }
         }
 
         for e in to_move.iter().rev() {

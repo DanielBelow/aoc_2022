@@ -28,7 +28,7 @@ struct CRTScreen {
 }
 
 impl CRTScreen {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self {
             pixels: [['.'; 40]; 6],
             row: 0,
@@ -88,11 +88,11 @@ impl VirtualMachine {
         }
     }
 
-    fn collect_signal_strength(&self) -> bool {
+    const fn collect_signal_strength(&self) -> bool {
         (self.cycle - 20) % 40 == 0
     }
 
-    fn total_signal_strength(&self) -> i64 {
+    const fn total_signal_strength(&self) -> i64 {
         self.signal_strength
     }
 

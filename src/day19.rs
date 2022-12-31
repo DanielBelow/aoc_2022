@@ -39,23 +39,23 @@ pub struct Blueprint {
 }
 
 impl Blueprint {
-    fn can_build_ore(&self, resources: &[usize; 4]) -> bool {
+    const fn can_build_ore(&self, resources: &[usize; 4]) -> bool {
         self.ore_robot.ore <= resources[0]
     }
 
-    fn can_build_clay(&self, resources: &[usize; 4]) -> bool {
+    const fn can_build_clay(&self, resources: &[usize; 4]) -> bool {
         self.clay_robot.ore <= resources[0]
     }
 
-    fn can_build_obsidian(&self, resources: &[usize; 4]) -> bool {
+    const fn can_build_obsidian(&self, resources: &[usize; 4]) -> bool {
         self.obsidian_robot.ore <= resources[0] && self.obsidian_robot.clay <= resources[1]
     }
 
-    fn can_build_geode(&self, resources: &[usize; 4]) -> bool {
+    const fn can_build_geode(&self, resources: &[usize; 4]) -> bool {
         self.geode_robot.ore <= resources[0] && self.geode_robot.obsidian <= resources[2]
     }
 
-    fn has_enough_ore_bots(&self, bots: &[usize; 4]) -> bool {
+    const fn has_enough_ore_bots(&self, bots: &[usize; 4]) -> bool {
         let ore_bots = bots[0];
         ore_bots >= self.geode_robot.ore
             && ore_bots >= self.obsidian_robot.ore
@@ -63,12 +63,12 @@ impl Blueprint {
             && ore_bots >= self.ore_robot.ore
     }
 
-    fn has_enough_clay_bots(&self, bots: &[usize; 4]) -> bool {
+    const fn has_enough_clay_bots(&self, bots: &[usize; 4]) -> bool {
         let clay_bots = bots[1];
         clay_bots >= self.obsidian_robot.clay
     }
 
-    fn has_enough_obsidian_bots(&self, bots: &[usize; 4]) -> bool {
+    const fn has_enough_obsidian_bots(&self, bots: &[usize; 4]) -> bool {
         let obsidian_bots = bots[2];
         obsidian_bots >= self.geode_robot.obsidian
     }

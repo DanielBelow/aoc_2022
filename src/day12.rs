@@ -8,7 +8,7 @@ pub fn generate(inp: &str) -> Option<Matrix<char>> {
     Matrix::from_rows(rows).ok()
 }
 
-fn char_to_elevation(c: char) -> u8 {
+const fn char_to_elevation(c: char) -> u8 {
     if c == 'S' {
         0
     } else if c == 'E' {
@@ -73,15 +73,15 @@ mod tests {
 
     #[test]
     fn test_sample_p1() {
-        let data = generate(TEST_INPUT).unwrap();
+        let data = generate(TEST_INPUT).expect("Failed generating test input");
         let res = part1(&data);
-        assert_eq!(res.unwrap(), 31);
+        assert_eq!(res, Some(31));
     }
 
     #[test]
     fn test_sample_p2() {
-        let data = generate(TEST_INPUT).unwrap();
+        let data = generate(TEST_INPUT).expect("Failed generating test input");
         let res = part2(&data);
-        assert_eq!(res.unwrap(), 29);
+        assert_eq!(res, Some(29));
     }
 }

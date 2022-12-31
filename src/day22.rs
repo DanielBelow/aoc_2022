@@ -399,8 +399,8 @@ mod tests {
 
     #[test]
     fn test_sample_p1() {
-        let data = generate(TEST_INPUT);
-        let res = part1(&data.unwrap());
+        let data = generate(TEST_INPUT).expect("Failed generating test input");
+        let res = part1(&data);
         assert_eq!(res, Some(6032));
     }
 

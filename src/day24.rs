@@ -119,7 +119,7 @@ fn successors(state: &State) -> Vec<(State, usize)> {
     result
 }
 
-fn heuristic(state: &State, gx: usize, gy: usize) -> usize {
+const fn heuristic(state: &State, gx: usize, gy: usize) -> usize {
     state.x.abs_diff(gx) + state.y.abs_diff(gy)
 }
 
@@ -204,15 +204,15 @@ mod tests {
 
     #[test]
     fn test_sample_p1() {
-        let data = generate(TEST_DATA);
-        let res = find_path_to(6, 5, &data.unwrap());
+        let data = generate(TEST_DATA).expect("Failed generating test input");
+        let res = find_path_to(6, 5, &data);
         assert_eq!(res, Some(18));
     }
 
     #[test]
     fn test_sample_p2() {
-        let data = generate(TEST_DATA);
-        let res = find_roundtrips_to(6, 5, &data.unwrap());
+        let data = generate(TEST_DATA).expect("Failed generating test input");
+        let res = find_roundtrips_to(6, 5, &data);
         assert_eq!(res, Some(54));
     }
 }

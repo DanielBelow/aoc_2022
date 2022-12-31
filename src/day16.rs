@@ -63,7 +63,9 @@ fn find_best_path(
         return;
     }
 
-    let (flow, targets) = valves.get(cur_node).unwrap();
+    let (flow, targets) = valves
+        .get(cur_node)
+        .expect("There has to exist a valve with this name");
     if opened.contains(cur_node) {
         for (target, cost) in targets {
             if opened.contains(target.as_str()) || *cost > rem_time {
@@ -115,7 +117,9 @@ fn find_reachable(
     valves: &HashMap<String, (usize, Vec<String>)>,
 ) -> Vec<(String, usize)> {
     let successors = pathfinding::prelude::dijkstra_all(&current.to_string(), |it| {
-        let (_, targets) = valves.get(it).unwrap();
+        let (_, targets) = valves
+            .get(it)
+            .expect("There has to exist a valve with this name");
         targets.iter().map(|it| (it.clone(), 1)).collect_vec()
     });
 
@@ -197,14 +201,14 @@ mod tests {
 
     #[test]
     fn test_sample_p1() {
-        let data = generate(TEST_INPUT).unwrap();
+        let data = generate(TEST_INPUT).expect("Failed generating test input");
         let res = part1(&data);
         assert_eq!(res, 1651);
     }
 
     #[test]
     fn test_sample_p2() {
-        let data = generate(TEST_INPUT).unwrap();
+        let data = generate(TEST_INPUT).expect("Failed generating test input");
         let res = part2(&data);
         assert_eq!(res, 1707);
     }
