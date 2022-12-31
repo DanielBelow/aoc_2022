@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Node {
     Integer(i64),
-    List(Vec<Node>),
+    List(Vec<Self>),
 }
 
 fn parse_numbers_list(line: &str) -> Option<Node> {
