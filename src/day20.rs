@@ -6,13 +6,16 @@ pub fn generate(inp: &str) -> Vec<i64> {
     inp.lines().filter_map(|it| it.parse().ok()).collect()
 }
 
-fn shift_elements(indices: &mut Vec<usize>, inp: &mut [i64]) {
+fn shift_elements(indices: &mut Vec<usize>, inp: &[i64]) {
     for (idx, it) in inp.iter().enumerate() {
         let start_idx = indices
             .iter()
             .position(|it| *it == idx)
             .expect("Index has to exist");
+
+        #[allow(clippy::cast_possible_wrap)]
         let end_idx = (start_idx as i64 + *it).rem_euclid(inp.len() as i64 - 1) as usize;
+
         indices.remove(start_idx);
         indices.insert(end_idx, idx);
     }
@@ -38,21 +41,21 @@ fn sum_elements(nums: &[i64], indices: &[usize]) -> i64 {
 
 #[aoc(day20, part1)]
 pub fn part1(inp: &[i64]) -> i64 {
-    let mut inp = inp.to_vec();
+    let inp = inp.to_vec();
     let mut indices = (0..inp.len()).collect_vec();
 
-    shift_elements(&mut indices, &mut inp);
+    shift_elements(&mut indices, &inp);
 
     sum_elements(&inp, &indices)
 }
 
 #[aoc(day20, part2)]
 pub fn part2(inp: &[i64]) -> i64 {
-    let mut inp = inp.iter().map(|it| it * 811_589_153).collect_vec();
+    let inp = inp.iter().map(|it| it * 811_589_153).collect_vec();
     let mut indices = (0..inp.len()).collect_vec();
 
     for _ in 0..10 {
-        shift_elements(&mut indices, &mut inp);
+        shift_elements(&mut indices, &inp);
     }
 
     sum_elements(&inp, &indices)

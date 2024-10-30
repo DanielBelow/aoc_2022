@@ -53,6 +53,7 @@ impl CRTScreen {
 
     fn is_visible(&self, register: i64) -> bool {
         for offset in -1i64..=1i64 {
+            #[allow(clippy::cast_possible_wrap)]
             if register == self.col as i64 + offset {
                 return true;
             }

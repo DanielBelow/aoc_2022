@@ -78,6 +78,7 @@ pub fn generate(inp: &str) -> Option<Input> {
                 assert!(chr == '.' || chr == '#');
 
                 grid_map.insert(
+                    #[allow(clippy::cast_possible_wrap)]
                     Complex::new(col as i64, row as i64),
                     if chr == '.' { Tile::Empty } else { Tile::Wall },
                 );
@@ -381,7 +382,7 @@ pub fn part2(inp: &Input) -> i64 {
 mod tests {
     use super::*;
 
-    const TEST_INPUT: &str = r#"
+    const TEST_INPUT: &str = r"
         ...#
         .#..
         #...
@@ -395,7 +396,7 @@ mod tests {
         .#......
         ......#.
 
-10R5L5R10L4R5L5"#;
+10R5L5R10L4R5L5";
 
     #[test]
     fn test_sample_p1() {

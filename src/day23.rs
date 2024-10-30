@@ -50,7 +50,7 @@ fn get_adjacent_row(direction: Direction, x: usize, y: usize, tiles: &[Vec<Tile>
 }
 
 fn moves(x: usize, y: usize, round: usize, tiles: &[Vec<Tile>]) -> Option<(usize, usize)> {
-    let directions = vec![
+    let directions = [
         get_adjacent_row(Direction::North, x, y, tiles),
         get_adjacent_row(Direction::East, x, y, tiles),
         get_adjacent_row(Direction::South, x, y, tiles),
